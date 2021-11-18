@@ -24,7 +24,7 @@ class AlienInvasion:
 
         self.ship = Ship(self)
         self.bullets  = pygame.sprite.Group()
-        self.ailens = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
 
@@ -61,7 +61,7 @@ class AlienInvasion:
         alien.y = alien_height + 2 * alien_height * row_number
         alien.rect.x = alien.x
         alien.rect.y = alien.y
-        self.ailens.add(alien)
+        self.aliens.add(alien)
 
 
 
@@ -119,6 +119,30 @@ class AlienInvasion:
 
 
 
+    def _update_alien(self):
+        self.aliens.update()
+
+
+    
+    def _check_edge(self):
+        """check if any of the aliens has colided with the sides and 
+           respond appropriately."""
+
+        for alien in self.aliens.sprites():
+            if alien.check_edge():
+                self._change_fleet_direction()
+
+
+    def _change_fleet_direction(self):
+        """change the fleet direction and drop the antire fleet."""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+
+        self.settings.fleet_direction *= -1
+
+
+
+
     def _update_bullets(self):
         self.bullets.update()
         
@@ -130,12 +154,14 @@ class AlienInvasion:
 
 
 
-    def update_screen(self):
+    def _update_screen(self):
         """Update images on the screen, and flip to the new screen."""
         self.screen.fill(self.settings.bg_color)
         self.ship.blit_me()
         self._update_bullets()
-        self.ailens.draw(self.screen)
+        self._update_alien()
+        self._check_edge()
+        self.aliens.draw(self.screen)
         
         #make the emost recently drawn screen visible.
         pygame.display.flip()
@@ -151,7 +177,7 @@ class AlienInvasion:
             self.ship.update()
             
             # redraw the screen during each pass through the loop.
-            self.update_screen()
+            self._update_screen()
 
 
             
